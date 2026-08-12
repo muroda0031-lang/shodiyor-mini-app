@@ -124,331 +124,448 @@ input {
 
 <div class="game">
 
-<div id="menu" class="screen active">
+    <div id="menu" class="screen active">
 
-<div class="logo">🎭</div>
+        <div class="logo">🎭</div>
 
-<h1>Кто я?</h1>
+        <h1>Кто я?</h1>
 
-<p class="subtitle">
-Игра для компании друзей
-</p>
+        <p class="subtitle">
+            Игра для компании друзей
+        </p>
 
-<button onclick="showScreen('create')">
-👥 Создать игру
-</button>
+        <button onclick="showScreen('create')">
+            👥 Создать игру
+        </button>
 
-<button class="secondary" onclick="showScreen('join')">
-🔑 Войти в игру
-</button>
+        <button class="secondary" onclick="showScreen('join')">
+            🔑 Войти в игру
+        </button>
 
-</div>
-
-
-<div id="create" class="screen">
-
-<h1>🏠 Создать комнату</h1>
-
-<input
-id="createName"
-type="text"
-placeholder="Например: Шодиёр"
->
-
-<button onclick="createRoom()">
-✨ Создать комнату
-</button>
-
-<button class="secondary"
-onclick="showScreen('menu')">
-← Назад
-</button>
-
-<div id="createMessage"
-class="message">
-</div>
-
-</div>
+    </div>
 
 
-<div id="room" class="screen">
+    <div id="create" class="screen">
 
-<h1>👥 Комната</h1>
+        <h1>🏠 Создать комнату</h1>
 
-<p class="subtitle">
-Отправь код друзьям
-</p>
+        <input
+            id="createName"
+            type="text"
+            placeholder="Например: Шодиёр"
+        >
 
-<div id="roomCode" class="room-code">
-----
-</div>
+        <button onclick="createRoom()">
+            ✨ Создать комнату
+        </button>
 
-<div id="players">
-</div>
+        <button class="secondary" onclick="showScreen('menu')">
+            ← Назад
+        </button>
 
-<button onclick="startGame()">
-🎮 Начать игру
-</button>
+        <div id="createMessage" class="message"></div>
 
-<button class="secondary"
-onclick="showScreen('menu')">
-🚪 Выйти
-</button>
-
-</div>
+    </div>
 
 
-<div id="join" class="screen">
+    <div id="room" class="screen">
 
-<h1>🔑 Войти</h1>
+        <h1>👥 Комната</h1>
 
-<input
-id="joinName"
-type="text"
-placeholder="Твоё имя"
->
+        <p class="subtitle">
+            Отправь код друзьям
+        </p>
 
-<input
-id="joinCode"
-type="text"
-placeholder="Код комнаты"
-maxlength="4"
->
+        <div id="roomCode" class="room-code">
+            ----
+        </div>
 
-<button onclick="joinRoom()">
-🚀 Войти
-</button>
+        <div id="players"></div>
 
-<button class="secondary"
-onclick="showScreen('menu')">
-← Назад
-</button>
+        <button onclick="startGame()">
+            🎮 Начать игру
+        </button>
 
-<div id="joinMessage"
-class="message">
-</div>
+        <button class="secondary" onclick="leaveRoom()">
+            🚪 Выйти
+        </button>
 
-</div>
+    </div>
 
 
-<div id="gameScreen" class="screen">
+    <div id="join" class="screen">
 
-<div class="logo">🎭</div>
+        <h1>🔑 Войти</h1>
 
-<h1>Кто я?</h1>
+        <input
+            id="joinName"
+            type="text"
+            placeholder="Твоё имя"
+        >
 
-<p class="subtitle">
-Твой персонаж:
-</p>
+        <input
+            id="joinCode"
+            type="text"
+            placeholder="Код комнаты"
+            maxlength="4"
+        >
 
-<div id="character" class="character">
-❓
-</div>
+        <button onclick="joinRoom()">
+            🚀 Войти
+        </button>
 
-<p>
-Задавай вопросы другим игрокам,
-чтобы угадать своего персонажа!
-</p>
+        <button class="secondary" onclick="showScreen('menu')">
+            ← Назад
+        </button>
 
-<button onclick="newCharacter()">
-🎲 Новый персонаж
-</button>
+        <div id="joinMessage" class="message"></div>
 
-<button class="secondary"
-onclick="showScreen('menu')">
-🏠 В меню
-</button>
+    </div>
 
-</div>
+
+    <div id="gameScreen" class="screen">
+
+        <div class="logo">🎭</div>
+
+        <h1>Кто я?</h1>
+
+        <p class="subtitle">
+            Твой персонаж:
+        </p>
+
+        <div id="character" class="character">
+            ❓
+        </div>
+
+        <p>
+            Задавай вопросы другим игрокам,
+            чтобы угадать своего персонажа!
+        </p>
+
+        <button onclick="newCharacter()">
+            🎲 Новый персонаж
+        </button>
+
+        <button class="secondary" onclick="showScreen('menu')">
+            🏠 В меню
+        </button>
+
+    </div>
 
 </div>
 
 
 <script>
 
-let roomCode = "";
+/* НАШ ИНТЕРНЕТ-СЕРВЕР */
 
+const SERVER = "https://shodiyor-mini-app.onrender.com";
+
+
+let currentRoom = "";
 let players = [];
 
 
+/* ПЕРСОНАЖИ */
+
 const characters = [
-"🕷️ Человек-паук",
-"🦇 Бэтмен",
-"🧙 Гарри Поттер",
-"🧜 Русалка",
-"🏴‍☠️ Пират",
-"🤖 Робот",
-"🐼 Панда",
-"🦁 Лев",
-"🐱 Кот",
-"🦄 Единорог",
-"⚽ Футболист",
-"🎤 Певец",
-"👨‍🍳 Повар",
-"👨‍🚀 Космонавт",
-"🧛 Вампир",
-"👑 Король",
-"🧑‍🎨 Художник",
-"🦸 Супергерой"
+    "🕷️ Человек-паук",
+    "🦇 Бэтмен",
+    "🧙 Гарри Поттер",
+    "🧜 Русалка",
+    "🏴‍☠️ Пират",
+    "🤖 Робот",
+    "🐼 Панда",
+    "🦁 Лев",
+    "🐱 Кот",
+    "🦄 Единорог",
+    "⚽ Футболист",
+    "🎤 Певец",
+    "👨‍🍳 Повар",
+    "👨‍🚀 Космонавт",
+    "🧛 Вампир",
+    "👑 Король",
+    "🧑‍🎨 Художник",
+    "🦸 Супергерой"
 ];
 
 
+/* ЭКРАНЫ */
+
 function showScreen(id) {
 
-document
-.querySelectorAll(".screen")
-.forEach(function(screen) {
+    document
+        .querySelectorAll(".screen")
+        .forEach(function(screen) {
+            screen.classList.remove("active");
+        });
 
-screen.classList.remove("active");
-
-});
-
-document
-.getElementById(id)
-.classList.add("active");
-
+    document
+        .getElementById(id)
+        .classList.add("active");
 }
 
 
-function createRoom() {
+/* СОЗДАНИЕ КОМНАТЫ */
 
-const name =
-document
-.getElementById("createName")
-.value
-.trim();
+async function createRoom() {
 
-if (!name) {
+    const name =
+        document
+        .getElementById("createName")
+        .value
+        .trim();
 
-document
-.getElementById("createMessage")
-.textContent =
-"Напиши своё имя 😊";
+    if (!name) {
 
-return;
+        document
+            .getElementById("createMessage")
+            .textContent =
+            "Напиши своё имя 😊";
 
+        return;
+    }
+
+    document
+        .getElementById("createMessage")
+        .textContent =
+        "Создаём комнату... ⏳";
+
+    try {
+
+        const response =
+            await fetch(
+                SERVER + "/create",
+                {
+                    method: "POST",
+
+                    headers: {
+                        "Content-Type":
+                        "application/json"
+                    },
+
+                    body: JSON.stringify({
+                        name: name
+                    })
+                }
+            );
+
+        const data =
+            await response.json();
+
+        if (!response.ok) {
+            throw new Error(
+                data.error ||
+                "Ошибка сервера"
+            );
+        }
+
+        currentRoom = data.code;
+        players = data.players;
+
+        document
+            .getElementById("roomCode")
+            .textContent =
+            currentRoom;
+
+        updatePlayers();
+
+        showScreen("room");
+
+    } catch (error) {
+
+        document
+            .getElementById("createMessage")
+            .textContent =
+            "Сервер не отвечает 😢";
+
+        console.log(error);
+    }
 }
 
 
-roomCode =
-Math.random()
-.toString(36)
-.substring(2,6)
-.toUpperCase();
-
-
-players = [name];
-
-
-document
-.getElementById("roomCode")
-.textContent =
-roomCode;
-
-
-updatePlayers();
-
-showScreen("room");
-
-}
-
+/* ИГРОКИ */
 
 function updatePlayers() {
 
-const container =
-document.getElementById("players");
+    const container =
+        document.getElementById("players");
 
-container.innerHTML = "";
+    container.innerHTML = "";
 
-players.forEach(function(player,index) {
+    players.forEach(function(player, index) {
 
-const div =
-document.createElement("div");
+        const div =
+            document.createElement("div");
 
-div.className = "player";
+        div.className = "player";
 
-div.textContent =
-(index === 0 ? "👑 " : "👤 ")
-+ player;
+        div.textContent =
+            (index === 0 ? "👑 " : "👤 ")
+            + player;
 
-container.appendChild(div);
-
-});
-
+        container.appendChild(div);
+    });
 }
 
 
-function joinRoom() {
+/* ОБНОВЛЕНИЕ КОМНАТЫ */
 
-const name =
-document
-.getElementById("joinName")
-.value
-.trim();
+async function refreshRoom() {
 
-const code =
-document
-.getElementById("joinCode")
-.value
-.trim()
-.toUpperCase();
+    if (!currentRoom) return;
 
-if (!name || !code) {
+    try {
 
-document
-.getElementById("joinMessage")
-.textContent =
-"Введи имя и код комнаты 😊";
+        const response =
+            await fetch(
+                SERVER +
+                "/room/" +
+                currentRoom
+            );
 
-return;
+        if (!response.ok) return;
 
+        const data =
+            await response.json();
+
+        players =
+            data.players;
+
+        updatePlayers();
+
+    } catch (error) {
+
+        console.log(
+            "Не удалось обновить комнату"
+        );
+    }
 }
 
 
-document
-.getElementById("joinMessage")
-.textContent =
-"Комната найдена! 🎉";
+setInterval(
+    refreshRoom,
+    2000
+);
 
 
-players.push(name);
+/* ВХОД */
 
-roomCode = code;
+async function joinRoom() {
 
-document
-.getElementById("roomCode")
-.textContent =
-roomCode;
+    const name =
+        document
+        .getElementById("joinName")
+        .value
+        .trim();
 
-updatePlayers();
+    const code =
+        document
+        .getElementById("joinCode")
+        .value
+        .trim()
+        .toUpperCase();
 
-showScreen("room");
+    if (!name || !code) {
 
+        document
+            .getElementById("joinMessage")
+            .textContent =
+            "Введи имя и код комнаты 😊";
+
+        return;
+    }
+
+    try {
+
+        const response =
+            await fetch(
+                SERVER + "/join",
+                {
+                    method: "POST",
+
+                    headers: {
+                        "Content-Type":
+                        "application/json"
+                    },
+
+                    body: JSON.stringify({
+                        name: name,
+                        code: code
+                    })
+                }
+            );
+
+        const data =
+            await response.json();
+
+        if (!response.ok) {
+
+            throw new Error(
+                data.error ||
+                "Комната не найдена"
+            );
+        }
+
+        currentRoom = data.code;
+        players = data.players;
+
+        document
+            .getElementById("roomCode")
+            .textContent =
+            currentRoom;
+
+        updatePlayers();
+
+        showScreen("room");
+
+    } catch (error) {
+
+        document
+            .getElementById("joinMessage")
+            .textContent =
+            "Не удалось войти 😢";
+
+        console.log(error);
+    }
 }
 
+
+/* НАЧАТЬ ИГРУ */
 
 function startGame() {
 
-newCharacter();
+    newCharacter();
 
-showScreen("gameScreen");
-
+    showScreen("gameScreen");
 }
 
 
+/* ПЕРСОНАЖ */
+
 function newCharacter() {
 
-const random =
-Math.floor(
-Math.random() *
-characters.length
-);
+    const random =
+        Math.floor(
+            Math.random() *
+            characters.length
+        );
 
-document
-.getElementById("character")
-.textContent =
-characters[random];
+    document
+        .getElementById("character")
+        .textContent =
+        characters[random];
+}
 
+
+/* ВЫЙТИ */
+
+function leaveRoom() {
+
+    currentRoom = "";
+    players = [];
+
+    showScreen("menu");
 }
 
 </script>
