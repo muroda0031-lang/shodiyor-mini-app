@@ -1,0 +1,763 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Кто я? 🎭</title>
+
+<style>
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    min-height: 100vh;
+    font-family: Arial, sans-serif;
+    background:
+        radial-gradient(circle at top, #6d4aff, transparent 45%),
+        linear-gradient(135deg, #120c29, #28134d);
+    color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+}
+
+.game {
+    width: 100%;
+    max-width: 500px;
+    background: rgba(255,255,255,0.10);
+    border: 1px solid rgba(255,255,255,0.18);
+    border-radius: 30px;
+    padding: 30px;
+    text-align: center;
+    backdrop-filter: blur(15px);
+    box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+}
+
+.screen {
+    display: none;
+}
+
+.screen.active {
+    display: block;
+}
+
+.logo {
+    font-size: 70px;
+    margin-bottom: 10px;
+}
+
+h1 {
+    font-size: 42px;
+    margin: 5px 0 10px;
+}
+
+.subtitle {
+    color: #d8ceff;
+    margin-bottom: 25px;
+}
+
+button {
+    width: 100%;
+    border: none;
+    border-radius: 17px;
+    padding: 16px;
+    margin-top: 12px;
+    font-size: 17px;
+    font-weight: bold;
+    color: white;
+    background: linear-gradient(135deg, #8b5cf6, #ec4899);
+    cursor: pointer;
+}
+
+button:active {
+    transform: scale(0.97);
+}
+
+button.secondary {
+    background: rgba(255,255,255,0.12);
+}
+
+input {
+    width: 100%;
+    padding: 16px;
+    border: none;
+    outline: none;
+    border-radius: 16px;
+    margin-top: 8px;
+    font-size: 17px;
+    text-align: center;
+}
+
+.room-code {
+    font-size: 42px;
+    font-weight: bold;
+    letter-spacing: 8px;
+    padding: 25px;
+    margin: 20px 0;
+    border-radius: 20px;
+    background: rgba(255,255,255,0.12);
+}
+
+.player {
+    background: rgba(255,255,255,0.10);
+    padding: 13px;
+    margin-top: 8px;
+    border-radius: 13px;
+}
+
+.character {
+    font-size: 30px;
+    font-weight: bold;
+    padding: 35px 15px;
+    margin: 25px 0;
+    border-radius: 24px;
+    background: linear-gradient(135deg, #8b5cf6, #ec4899);
+}
+
+.message {
+    min-height: 22px;
+    margin-top: 15px;
+    color: #ffd6f5;
+}
+
+.small {
+    color: #aaa;
+    font-size: 13px;
+    margin-top: 20px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="game">
+
+    <!-- ГЛАВНОЕ МЕНЮ -->
+
+    <div id="menu" class="screen active">
+
+        <div class="logo">🎭</div>
+
+        <h1>Кто я?</h1>
+
+        <p class="subtitle">
+            Игра для компании друзей
+        </p>
+
+        <button id="createButton">
+            👥 Создать игру
+        </button>
+
+        <button id="joinButton" class="secondary">
+            🔑 Войти в игру
+        </button>
+
+        <p class="small">
+            Собери друзей и начинайте угадывать! 💜
+        </p>
+
+    </div>
+
+
+    <!-- СОЗДАНИЕ КОМНАТЫ -->
+
+    <div id="create" class="screen">
+
+        <h1>🏠 Комната</h1>
+
+        <p class="subtitle">
+            Как тебя зовут?
+        </p>
+
+        <input
+            id="createName"
+            type="text"
+            placeholder="Например: Шодиёр"
+        >
+
+        <button id="createRoomButton">
+            ✨ Создать комнату
+        </button>
+
+        <button id="backFromCreate" class="secondary">
+            ← Назад
+        </button>
+
+        <div id="createMessage" class="message"></div>
+
+    </div>
+
+
+    <!-- КОМНАТА -->
+
+    <div id="room" class="screen">
+
+        <h1>👥 Комната</h1>
+
+        <p class="subtitle">
+            Отправь код друзьям
+        </p>
+
+        <div id="roomCode" class="room-code">
+            ----
+        </div>
+
+        <div id="players"></div>
+
+        <button id="startButton">
+            🎮 Начать игру
+        </button>
+
+        <button id="leaveButton" class="secondary">
+            🚪 Выйти
+        </button>
+
+    </div>
+
+
+    <!-- ВХОД -->
+
+    <div id="join" class="screen">
+
+        <h1>🔑 Войти</h1>
+
+        <input
+            id="joinName"
+            type="text"
+            placeholder="Твоё имя"
+        >
+
+        <input
+            id="joinCode"
+            type="text"
+            placeholder="Код комнаты"
+            maxlength="4"
+        >
+
+        <button id="joinRoomButton">
+            🚀 Войти
+        </button>
+
+        <button id="backFromJoin" class="secondary">
+            ← Назад
+        </button>
+
+        <div id="joinMessage" class="message"></div>
+
+    </div>
+
+
+    <!-- ИГРА -->
+
+    <div id="gameScreen" class="screen">
+
+        <div class="logo">🎭</div>
+
+        <h1>Кто я?</h1>
+
+        <p class="subtitle">
+            Твой персонаж:
+        </p>
+
+        <div id="character" class="character">
+            ❓
+        </div>
+
+        <p>
+            Задавай вопросы другим игрокам,
+            чтобы угадать своего персонажа!
+        </p>
+
+        <button id="newCharacterButton">
+            🎲 Новый персонаж
+        </button>
+
+        <button id="menuButton" class="secondary">
+            🏠 В меню
+        </button>
+
+    </div>
+
+</div>
+
+
+<script>
+
+/* АДРЕС СЕРВЕРА */
+
+const SERVER = "http://192.168.199.31:5000";
+
+
+let currentRoom = "";
+let players = [];
+
+
+/* ПЕРСОНАЖИ */
+
+const characters = [
+
+    "🕷️ Человек-паук",
+    "🦇 Бэтмен",
+    "🧙 Гарри Поттер",
+    "🧜 Русалка",
+    "🏴‍☠️ Пират",
+    "🤖 Робот",
+    "🐼 Панда",
+    "🦁 Лев",
+    "🐱 Кот",
+    "🦄 Единорог",
+    "⚽ Футболист",
+    "🎤 Певец",
+    "👨‍🍳 Повар",
+    "👨‍🚀 Космонавт",
+    "🧛 Вампир",
+    "👑 Король",
+    "🧑‍🎨 Художник",
+    "🦸 Супергерой"
+
+];
+
+
+/* ПЕРЕКЛЮЧЕНИЕ ЭКРАНОВ */
+
+function showScreen(id) {
+
+    document
+        .querySelectorAll(".screen")
+        .forEach(screen => {
+
+            screen.classList.remove("active");
+
+        });
+
+    const screen =
+        document.getElementById(id);
+
+    if (screen) {
+        screen.classList.add("active");
+    }
+}
+
+
+/* ГЛАВНОЕ МЕНЮ */
+
+document
+    .getElementById("createButton")
+    .addEventListener("click", function() {
+
+        showScreen("create");
+
+    });
+
+
+document
+    .getElementById("joinButton")
+    .addEventListener("click", function() {
+
+        showScreen("join");
+
+    });
+
+
+/* НАЗАД */
+
+document
+    .getElementById("backFromCreate")
+    .addEventListener("click", function() {
+
+        showScreen("menu");
+
+    });
+
+
+document
+    .getElementById("backFromJoin")
+    .addEventListener("click", function() {
+
+        showScreen("menu");
+
+    });
+
+
+/* СОЗДАНИЕ КОМНАТЫ */
+
+document
+    .getElementById("createRoomButton")
+    .addEventListener("click", createRoom);
+
+
+async function createRoom() {
+
+    const name =
+        document
+        .getElementById("createName")
+        .value
+        .trim();
+
+
+    if (!name) {
+
+        document
+            .getElementById("createMessage")
+            .textContent =
+            "Напиши своё имя 😊";
+
+        return;
+
+    }
+
+
+    document
+        .getElementById("createMessage")
+        .textContent =
+        "Создаём комнату... ⏳";
+
+
+    try {
+
+        const response =
+            await fetch(
+                SERVER + "/create",
+                {
+                    method: "POST",
+
+                    headers: {
+                        "Content-Type":
+                        "application/json"
+                    },
+
+                    body: JSON.stringify({
+                        name: name
+                    })
+                }
+            );
+
+
+        const data =
+            await response.json();
+
+
+        if (!response.ok) {
+
+            throw new Error(
+                data.error ||
+                "Ошибка сервера"
+            );
+
+        }
+
+
+        currentRoom = data.code;
+
+        players = data.players;
+
+
+        document
+            .getElementById("roomCode")
+            .textContent =
+            currentRoom;
+
+
+        updatePlayers();
+
+
+        showScreen("room");
+
+
+    }
+
+    catch (error) {
+
+        document
+            .getElementById("createMessage")
+            .textContent =
+            "Сервер не отвечает 😢";
+
+        console.log(error);
+
+    }
+
+}
+
+
+/* ОБНОВЛЕНИЕ СПИСКА ИГРОКОВ */
+
+function updatePlayers() {
+
+    const container =
+        document.getElementById("players");
+
+
+    container.innerHTML = "";
+
+
+    players.forEach(
+        function(player, index) {
+
+            const div =
+                document.createElement("div");
+
+
+            div.className =
+                "player";
+
+
+            div.textContent =
+                (index === 0
+                    ? "👑 "
+                    : "👤 ")
+                + player;
+
+
+            container.appendChild(div);
+
+        }
+    );
+
+}
+
+
+/* АВТОМАТИЧЕСКАЯ ПРОВЕРКА КОМНАТЫ */
+
+async function refreshRoom() {
+
+    if (!currentRoom) return;
+
+
+    try {
+
+        const response =
+            await fetch(
+                SERVER +
+                "/room/" +
+                currentRoom
+            );
+
+
+        if (!response.ok) return;
+
+
+        const data =
+            await response.json();
+
+
+        players =
+            data.players;
+
+
+        updatePlayers();
+
+    }
+
+    catch (error) {
+
+        console.log(
+            "Не удалось обновить комнату"
+        );
+
+    }
+
+}
+
+
+/* ОБНОВЛЯЕМ КАЖДЫЕ 2 СЕКУНДЫ */
+
+setInterval(
+    refreshRoom,
+    2000
+);
+
+
+/* ВХОД В КОМНАТУ */
+
+document
+    .getElementById("joinRoomButton")
+    .addEventListener("click", joinRoom);
+
+
+async function joinRoom() {
+
+    const name =
+        document
+        .getElementById("joinName")
+        .value
+        .trim();
+
+
+    const code =
+        document
+        .getElementById("joinCode")
+        .value
+        .trim()
+        .toUpperCase();
+
+
+    if (!name || !code) {
+
+        document
+            .getElementById("joinMessage")
+            .textContent =
+            "Введи имя и код комнаты 😊";
+
+        return;
+
+    }
+
+
+    try {
+
+        const response =
+            await fetch(
+                SERVER + "/join",
+                {
+
+                    method: "POST",
+
+                    headers: {
+                        "Content-Type":
+                        "application/json"
+                    },
+
+                    body: JSON.stringify({
+
+                        name: name,
+
+                        code: code
+
+                    })
+
+                }
+            );
+
+
+        const data =
+            await response.json();
+
+
+        if (!response.ok) {
+
+            throw new Error(
+                data.error ||
+                "Комната не найдена"
+            );
+
+        }
+
+
+        currentRoom =
+            data.code;
+
+
+        players =
+            data.players;
+
+
+        document
+            .getElementById("roomCode")
+            .textContent =
+            currentRoom;
+
+
+        updatePlayers();
+
+
+        showScreen("room");
+
+    }
+
+    catch (error) {
+
+        document
+            .getElementById("joinMessage")
+            .textContent =
+            error.message;
+
+    }
+
+}
+
+
+/* НАЧАТЬ ИГРУ */
+
+document
+    .getElementById("startButton")
+    .addEventListener(
+        "click",
+        startGame
+    );
+
+
+function startGame() {
+
+    newCharacter();
+
+    showScreen("gameScreen");
+
+}
+
+
+/* НОВЫЙ ПЕРСОНАЖ */
+
+document
+    .getElementById("newCharacterButton")
+    .addEventListener(
+        "click",
+        newCharacter
+    );
+
+
+function newCharacter() {
+
+    const random =
+        Math.floor(
+            Math.random() *
+            characters.length
+        );
+
+
+    document
+        .getElementById("character")
+        .textContent =
+        characters[random];
+
+}
+
+
+/* ВЫХОД ИЗ КОМНАТЫ */
+
+document
+    .getElementById("leaveButton")
+    .addEventListener(
+        "click",
+        function() {
+
+            currentRoom = "";
+
+            players = [];
+
+            showScreen("menu");
+
+        }
+    );
+
+
+/* В МЕНЮ */
+
+document
+    .getElementById("menuButton")
+    .addEventListener(
+        "click",
+        function() {
+
+            showScreen("menu");
+
+        }
+    );
+
+</script>
+
+</body>
+</html>
