@@ -9,7 +9,7 @@ from telegram.ext import Application, CommandHandler, ContextTypes
 TOKEN = os.environ["BOT_TOKEN"]
 
 # 🔗 СЮДА ВСТАВЬ АДРЕС СВОЕГО MINI APP
-MINI_APP_URL = "https://muroda0031-lang.github.io/shodiyor-mini-app/"
+MINI_APP_URL = "https://muroda0031-lang.github.io/shodiyor-mini-app/shodiyor_mini_app.html"
 
 
 web_app = Flask(__name__)
