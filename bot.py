@@ -1,4 +1,3 @@
-```python
 import os
 import threading
 
@@ -56,4 +55,3 @@ if __name__ == "__main__":
     web_thread.start()
 
     run_bot()
-```
