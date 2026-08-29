@@ -4,267 +4,1114 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <title>Shodiyor Mini App</title>
+    <title>NEXUS ONLINE</title>
 
-    <!-- Telegram Mini App -->
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
     <style>
+        :root {
+            --bg-a: #070b1a;
+            --bg-b: #101b34;
+            --bg-c: #1b2548;
+            --panel: rgba(11, 15, 29, 0.75);
+            --panel-strong: rgba(18, 23, 39, 0.9);
+            --glass: rgba(255, 255, 255, 0.06);
+            --glass-strong: rgba(255, 255, 255, 0.12);
+            --purple: #8d7bff;
+            --pink: #ff5ebc;
+            --cyan: #7be7ff;
+            --green: #63f1bd;
+            --gold: #ffc857;
+            --red: #ff6b7d;
+            --text: #eef7ff;
+            --muted: #b0bedc;
+            --shadow: 0 28px 70px rgba(4, 6, 18, 0.72);
+        }
+
         * {
             box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
+            touch-action: manipulation;
+        }
+
+        html, body {
+            margin: 0;
+            min-height: 100%;
+            font-family: Inter, "Segoe UI", "SF Pro Display", Arial, sans-serif;
+            background:
+                radial-gradient(circle at top left, rgba(141, 123, 255, 0.28), transparent 28%),
+                radial-gradient(circle at bottom right, rgba(123, 231, 255, 0.2), transparent 30%),
+                linear-gradient(180deg, var(--bg-a), var(--bg-b) 58%, var(--bg-c));
+            color: var(--text);
         }
 
         body {
-            margin: 0;
-            font-family: Arial, sans-serif;
-            background: linear-gradient(145deg, #f7f0ff, #eef8ff);
-            color: #27233a;
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+            padding: 18px 12px 28px;
+            overflow-x: hidden;
+        }
+
+        .ambient {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(30px);
+            opacity: 0.7;
+            pointer-events: none;
+            animation: drift 12s ease-in-out infinite alternate;
+        }
+
+        .ambient.a {
+            width: 260px;
+            height: 260px;
+            background: rgba(141, 123, 255, 0.24);
+            top: 4%;
+            left: -40px;
+        }
+
+        .ambient.b {
+            width: 240px;
+            height: 240px;
+            background: rgba(123, 231, 255, 0.18);
+            bottom: 8%;
+            right: -30px;
+            animation-delay: 1.8s;
         }
 
         .app {
-            max-width: 520px;
-            margin: auto;
-            padding: 18px;
+            position: relative;
+            z-index: 1;
+            width: min(100%, 430px);
         }
 
-        .hero {
-            padding: 24px;
-            border-radius: 28px;
-            color: #fff;
-            background: linear-gradient(135deg, #7c3aed, #ec4899);
-            box-shadow: 0 12px 28px #7c3aed33;
+        .game-shell {
+            position: relative;
+            overflow: hidden;
+            border-radius: 34px;
+            background: linear-gradient(180deg, rgba(16, 21, 38, 0.92), rgba(10, 13, 24, 0.94));
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: var(--shadow);
+            backdrop-filter: blur(18px);
         }
 
-        .hero h1 {
-            margin: 7px 0;
+        .game-shell::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(255,255,255,0.08), transparent 28%, transparent 72%, rgba(123,231,255,0.08));
+            pointer-events: none;
         }
 
-        .hero p {
+        .game-screen {
+            position: relative;
+            display: none;
+            padding: 18px 16px 20px;
+            animation: fadeIn 0.35s ease;
+        }
+
+        .game-screen.active {
+            display: block;
+        }
+
+        .topbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 12px;
+        }
+
+        .brand-mark {
+            width: 34px;
+            height: 34px;
+            display: grid;
+            place-items: center;
+            border-radius: 12px;
+            background: linear-gradient(135deg, rgba(141,123,255,0.32), rgba(255,94,188,0.18));
+            border: 1px solid rgba(255,255,255,0.1);
+            font-size: 18px;
+            font-weight: 900;
+            color: var(--cyan);
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.18);
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 12px;
+            border-radius: 999px;
+            background: rgba(255,255,255,0.06);
+            border: 1px solid rgba(255,255,255,0.1);
+            color: var(--muted);
+            font-size: 10px;
+            line-height: 1;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            font-weight: 700;
+        }
+
+        .status-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            padding: 8px 12px;
+            border-radius: 999px;
+            background: rgba(99, 241, 189, 0.1);
+            border: 1px solid rgba(99, 241, 189, 0.28);
+            color: var(--green);
+            font-size: 10px;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            font-weight: 700;
+        }
+
+        .status-pill::before {
+            content: "";
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: var(--green);
+            box-shadow: 0 0 12px rgba(99,241,189,0.9);
+        }
+
+        .title {
+            margin: 12px 0 8px;
+            font-size: clamp(42px, 12vw, 76px);
+            line-height: 0.82;
+            letter-spacing: -0.08em;
+            font-weight: 900;
+            background: linear-gradient(135deg, #f8fbff, #dbe9ff 35%, #8ce5ff 65%, #b79dff);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-shadow: 0 18px 38px rgba(124, 162, 255, 0.18);
+        }
+
+        .subtitle {
             margin: 0;
-            opacity: .9;
+            color: var(--muted);
+            font-size: 15px;
+            line-height: 1.55;
+            max-width: 30ch;
         }
 
-        .grid {
+        .stats {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 12px;
-            margin-top: 15px;
+            margin-top: 18px;
         }
 
-        .card {
-            background: #fff;
-            border: 0;
+        .stat {
+            position: relative;
+            overflow: hidden;
+            background: linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.03));
+            border: 1px solid rgba(255,255,255,0.08);
             border-radius: 22px;
-            padding: 17px;
-            text-align: left;
-            min-height: 110px;
-            box-shadow: 0 7px 20px #3331;
-            font-size: 15px;
-            cursor: pointer;
+            padding: 14px 14px 12px;
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.08);
         }
 
-        .icon {
-            font-size: 30px;
+        .stat span {
             display: block;
-            margin-bottom: 8px;
+            color: var(--muted);
+            font-size: 10px;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            font-weight: 700;
         }
 
-        .card b {
+        .stat strong {
             display: block;
-            margin-bottom: 4px;
+            margin-top: 10px;
+            font-size: 24px;
+            font-weight: 800;
+            line-height: 1;
         }
 
-        .card span {
-            color: #777;
-            font-size: 13px;
-        }
-
-        .section {
-            background: #fff;
-            border-radius: 23px;
-            padding: 18px;
-            margin-top: 15px;
-            box-shadow: 0 7px 20px #3331;
-        }
-
-        .section h2 {
-            margin: 0 0 10px;
-        }
-
-        .task {
-            display: block;
-            padding: 12px 0;
-            border-bottom: 1px solid #eee;
-        }
-
-        .task input {
-            width: 19px;
-            height: 19px;
-            vertical-align: middle;
-            margin-right: 8px;
-        }
-
-        .btn {
-            width: 100%;
+        .primary-btn,
+        .secondary-btn,
+        .action-button,
+        .phantom-button {
             border: 0;
-            border-radius: 17px;
-            background: #7c3aed;
-            color: #fff;
-            padding: 15px;
-            margin-top: 14px;
-            font-weight: bold;
-            font-size: 16px;
             cursor: pointer;
+            font: inherit;
+            transition: transform 0.18s ease, box-shadow 0.2s ease, filter 0.2s ease;
+        }
+
+        .primary-btn:hover,
+        .secondary-btn:hover,
+        .action-button:hover,
+        .phantom-button:hover {
+            filter: brightness(1.03);
+            box-shadow: 0 18px 32px rgba(141, 123, 255, 0.2);
+        }
+
+        .primary-btn:active,
+        .secondary-btn:active,
+        .action-button:active,
+        .phantom-button:active {
+            transform: scale(0.98);
+        }
+
+        .primary-btn {
+            position: relative;
+            width: 100%;
+            min-height: 66px;
+            margin-top: 22px;
+            border-radius: 999px;
+            padding: 16px 18px;
+            background: linear-gradient(135deg, var(--purple), var(--pink) 45%, #ff8e5d 100%);
+            color: white;
+            font-size: 18px;
+            font-weight: 900;
+            letter-spacing: 0.17em;
+            text-transform: uppercase;
+            box-shadow: 0 20px 48px rgba(138, 98, 255, 0.45), inset 0 1px 0 rgba(255,255,255,0.32);
+            overflow: hidden;
+        }
+
+        .primary-btn::before {
+            content: "";
+            position: absolute;
+            width: 120%;
+            height: 180%;
+            left: -35%;
+            top: -30%;
+            background: linear-gradient(115deg, rgba(255,255,255,0.35), transparent 42%, transparent 60%, rgba(255,255,255,0.12));
+            transform: rotate(18deg);
+            pointer-events: none;
+        }
+
+        .primary-btn span,
+        .secondary-btn,
+        .action-button,
+        .phantom-button {
+            position: relative;
+            z-index: 1;
+        }
+
+        .secondary-btn {
+            width: 100%;
+            min-height: 54px;
+            margin-top: 12px;
+            border-radius: 18px;
+            background: rgba(255,255,255,0.04);
+            color: var(--text);
+            border: 1px solid rgba(255,255,255,0.08);
+            font-weight: 700;
+            letter-spacing: 0.06em;
+        }
+
+        .hud {
+            display: grid;
+            grid-template-columns: 1fr 1fr 82px;
+            gap: 10px;
+            align-items: center;
+            margin-bottom: 14px;
+        }
+
+        .hud-box {
+            position: relative;
+            background: linear-gradient(180deg, rgba(255,255,255,0.08), rgba(255,255,255,0.03));
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 20px;
+            padding: 10px 12px 9px;
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.08);
+        }
+
+        .hud-box span {
+            display: block;
+            color: var(--muted);
+            font-size: 9px;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            font-weight: 700;
+        }
+
+        .hud-box strong {
+            display: block;
+            margin-top: 8px;
+            font-size: 24px;
+            font-weight: 800;
+            line-height: 1;
+        }
+
+        .timer-ring {
+            width: 78px;
+            height: 78px;
+            display: grid;
+            place-items: center;
+            border-radius: 50%;
+            background: conic-gradient(var(--green) calc(var(--time) * 1%), rgba(255,255,255,0.06) 0);
+            border: 1px solid rgba(255,255,255,0.1);
+            box-shadow: inset 0 0 28px rgba(255,255,255,0.05), 0 16px 28px rgba(99,241,189,0.18);
+        }
+
+        .timer-ring > span {
+            width: 61px;
+            height: 61px;
+            border-radius: 50%;
+            display: grid;
+            place-items: center;
+            background: rgba(11, 15, 29, 0.96);
+            font-size: 22px;
+            font-weight: 800;
+            color: var(--text);
+        }
+
+        .live-panel {
+            position: relative;
+            margin-top: 5px;
+            padding: 18px 14px 10px;
+            border-radius: 28px;
+            background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.02));
+            border: 1px solid rgba(255,255,255,0.08);
+        }
+
+        .round-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+        }
+
+        .pulse-dot {
+            width: 9px;
+            height: 9px;
+            border-radius: 50%;
+            background: var(--green);
+            box-shadow: 0 0 18px rgba(99,241,189,0.9);
+            animation: pulse 1.3s ease-in-out infinite;
+        }
+
+        .rule-banner {
+            margin-top: 12px;
+            padding: 14px 16px;
+            border-radius: 18px;
+            background: linear-gradient(135deg, rgba(141,123,255,0.18), rgba(123,231,255,0.08));
+            border: 1px solid rgba(255,255,255,0.08);
+            color: var(--text);
+            line-height: 1.5;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .event-banner {
+            min-height: 22px;
+            margin-top: 10px;
+            color: var(--gold);
+            opacity: 0;
+            transform: translateY(-6px);
+            transition: all 0.25s ease;
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: 0.16em;
+            text-transform: uppercase;
+        }
+
+        .event-banner.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .game-prompt {
+            margin-top: 16px;
+            text-align: center;
+            font-size: clamp(26px, 7vw, 38px);
+            line-height: 1.15;
+            letter-spacing: -0.05em;
+            font-weight: 900;
+            min-height: 92px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text);
+        }
+
+        .game-action-zone {
+            margin-top: 10px;
+            display: grid;
+            gap: 12px;
+        }
+
+        .dual-actions {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .dual-actions.flipped {
+            direction: rtl;
+        }
+
+        .action-button {
+            min-height: 75px;
+            padding: 18px 12px;
+            border-radius: 22px;
+            background: linear-gradient(180deg, rgba(255,255,255,0.08), rgba(255,255,255,0.03));
+            color: var(--text);
+            border: 1px solid rgba(255,255,255,0.08);
+            font-size: 16px;
+            font-weight: 800;
+            letter-spacing: 0.02em;
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.08);
+        }
+
+        .action-button.correct {
+            background: linear-gradient(135deg, rgba(99,241,189,0.18), rgba(99,241,189,0.08));
+            border-color: rgba(99, 241, 189, 0.42);
+            box-shadow: 0 14px 28px rgba(99,241,189,0.18);
+            animation: successPulse 0.35s ease;
+        }
+
+        .action-button.wrong {
+            background: linear-gradient(135deg, rgba(255,107,125,0.18), rgba(255,107,125,0.08));
+            border-color: rgba(255,107,125,0.42);
+            box-shadow: 0 14px 28px rgba(255,107,125,0.18);
+            animation: errorShake 0.25s ease;
+        }
+
+        .phantom-button {
+            aspect-ratio: 1 / 1;
+            display: grid;
+            place-items: center;
+            border-radius: 26px;
+            background: linear-gradient(180deg, rgba(255,255,255,0.08), rgba(255,255,255,0.04));
+            border: 1px solid rgba(255,255,255,0.08);
+            color: var(--text);
+            font-size: clamp(28px, 7vw, 42px);
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.06);
+        }
+
+        .phantom-button.real {
+            background: linear-gradient(135deg, rgba(123,231,255,0.18), rgba(141,123,255,0.18));
+            border-color: rgba(123,231,255,0.42);
+            box-shadow: 0 0 0 1px rgba(123,231,255,0.2), 0 18px 34px rgba(141,123,255,0.18);
+        }
+
+        .memory-sequence {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(56px, 1fr));
+            gap: 12px;
+            max-width: 220px;
+            margin: 0 auto;
+        }
+
+        .memory-token {
+            width: 100%;
+            aspect-ratio: 1 / 1;
+            border-radius: 20px;
+            display: grid;
+            place-items: center;
+            background: linear-gradient(180deg, rgba(255,255,255,0.08), rgba(255,255,255,0.03));
+            border: 1px solid rgba(255,255,255,0.08);
+            font-size: 28px;
+            font-weight: 800;
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.08);
+        }
+
+        .result-panel {
+            margin-top: 8px;
+            padding: 20px 18px 18px;
+            border-radius: 28px;
+            background: linear-gradient(180deg, rgba(255,255,255,0.07), rgba(255,255,255,0.02));
+            border: 1px solid rgba(255,255,255,0.08);
+            text-align: center;
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.08);
+        }
+
+        .result-panel .mini {
+            display: inline-block;
+            padding: 8px 12px;
+            border-radius: 999px;
+            background: rgba(255,255,255,0.05);
+            color: var(--muted);
+            font-size: 10px;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            font-weight: 700;
+        }
+
+        .result-score {
+            margin: 18px 0 14px;
+            font-size: clamp(56px, 18vw, 96px);
+            line-height: 0.85;
+            font-weight: 900;
+            letter-spacing: -0.08em;
+        }
+
+        .result-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 6px;
+            color: var(--muted);
+            font-size: 15px;
+            margin-top: 8px;
+        }
+
+        .result-row strong {
+            color: var(--text);
+            font-weight: 800;
         }
 
         #toast {
             display: none;
             position: fixed;
-            bottom: 20px;
             left: 16px;
             right: 16px;
-            background: #29243b;
-            color: white;
-            padding: 14px;
-            border-radius: 15px;
-            text-align: center;
+            bottom: 24px;
             z-index: 1000;
+            padding: 14px 16px;
+            border-radius: 18px;
+            background: rgba(10, 15, 27, 0.9);
+            border: 1px solid rgba(255,255,255,0.08);
+            box-shadow: 0 18px 32px rgba(0,0,0,0.38);
+            color: white;
+            text-align: center;
+            font-weight: 700;
+            backdrop-filter: blur(12px);
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(8px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+            50% {
+                transform: scale(1.25);
+                opacity: 0.8;
+            }
+        }
+
+        @keyframes drift {
+            0% {
+                transform: translate3d(0, 0, 0) scale(1);
+            }
+            100% {
+                transform: translate3d(20px, -18px, 0) scale(1.08);
+            }
+        }
+
+        @keyframes successPulse {
+            0% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.04);
+            }
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        @keyframes errorShake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-3px); }
+            50% { transform: translateX(3px); }
+            75% { transform: translateX(-2px); }
+        }
+
+        @media (max-width: 420px) {
+            body {
+                padding-left: 8px;
+                padding-right: 8px;
+            }
+
+            .game-shell {
+                border-radius: 28px;
+            }
+
+            .game-screen {
+                padding-left: 14px;
+                padding-right: 14px;
+            }
         }
     </style>
 </head>
 
 <body>
+    <div class="ambient a"></div>
+    <div class="ambient b"></div>
 
     <main class="app">
+        <section class="game-shell">
+            <div id="gameStartScreen" class="game-screen active">
+                <div class="topbar">
+                    <div class="brand-mark">N</div>
+                    <div class="status-pill">live</div>
+                </div>
 
-        <section class="hero">
-            <small>✨ MINI APP</small>
-            <h1 id="welcome">Привет! 👋</h1>
-            <p>Твоё маленькое красивое приложение 💜</p>
+                <div class="hero-panel">
+                    <div class="badge">neural rush</div>
+                    <h1 class="title">NEXUS<br>ONLINE</h1>
+                    <p class="subtitle">Новый раунд — новая схема. Читай сигнал, держи темп и не теряй контроль.</p>
+                </div>
+
+                <div class="stats">
+                    <div class="stat">
+                        <span>best</span>
+                        <strong id="bestScoreView">0</strong>
+                    </div>
+                    <div class="stat">
+                        <span>status</span>
+                        <strong>LIVE</strong>
+                    </div>
+                </div>
+
+                <button id="startGameBtn" class="primary-btn"><span>Играть</span></button>
+            </div>
+
+            <div id="gameLiveScreen" class="game-screen">
+                <div class="hud">
+                    <div class="hud-box">
+                        <span>score</span>
+                        <strong id="scoreValue">0</strong>
+                    </div>
+                    <div class="hud-box">
+                        <span>combo</span>
+                        <strong id="comboValue">x1</strong>
+                    </div>
+                    <div class="timer-ring" id="timerRing" style="--time:100;">
+                        <span id="timerValue">15</span>
+                    </div>
+                </div>
+
+                <div class="live-panel">
+                    <div class="round-row">
+                        <div id="roundName" class="badge">mode: loading</div>
+                        <div class="pulse-dot"></div>
+                    </div>
+
+                    <div id="ruleBanner" class="rule-banner">Сбор данных...</div>
+                    <div id="eventBanner" class="event-banner">event</div>
+                    <div id="gamePrompt" class="game-prompt">Подготовка...</div>
+                    <div id="gameActionZone" class="game-action-zone"></div>
+                </div>
+            </div>
+
+            <div id="gameEndScreen" class="game-screen">
+                <div class="result-panel">
+                    <div class="mini">round end</div>
+                    <div id="finalScore" class="result-score">0</div>
+                    <div class="result-row">
+                        <span>combo</span>
+                        <strong id="finalCombo">x1</strong>
+                    </div>
+                    <div class="result-row">
+                        <span>mode</span>
+                        <strong id="finalMode">signal</strong>
+                    </div>
+                </div>
+
+                <button id="replayBtn" class="primary-btn"><span>Играть снова</span></button>
+                <button id="backHomeBtn" class="secondary-btn">Главный экран</button>
+            </div>
         </section>
-
-        <section class="grid">
-
-            <button class="card" onclick="toast('🎮 Игры скоро будут здесь!')">
-                <i class="icon">🎮</i>
-                <b>Игры</b>
-                <span>Развлекайся</span>
-            </button>
-
-            <button class="card" onclick="toast('⭐ Ты сегодня молодец!')">
-                <i class="icon">⭐</i>
-                <b>Мотивация</b>
-                <span>Немного вдохновения</span>
-            </button>
-
-            <button class="card" onclick="toast('📚 Раздел заданий открыт!')">
-                <i class="icon">📚</i>
-                <b>Задания</b>
-                <span>Твои цели</span>
-            </button>
-
-            <button class="card" onclick="showProfile()">
-                <i class="icon">👤</i>
-                <b>Профиль</b>
-                <span id="profileText">Загрузка...</span>
-            </button>
-
-        </section>
-
-        <section class="section">
-
-            <h2>🌸 План на сегодня</h2>
-
-            <label class="task">
-                <input type="checkbox">
-                Сделать что-нибудь полезное
-            </label>
-
-            <label class="task">
-                <input type="checkbox">
-                Выучить что-нибудь новое
-            </label>
-
-            <label class="task">
-                <input type="checkbox">
-                Отдохнуть и улыбнуться 😊
-            </label>
-
-            <button class="btn" onclick="toast('🎉 Готово!')">
-                Готово ✨
-            </button>
-
-        </section>
-
     </main>
 
     <div id="toast"></div>
 
     <script>
+        const tg = window.Telegram?.WebApp;
+        const user = tg?.initDataUnsafe?.user || null;
 
-        // Telegram Mini App
-        const tg = window.Telegram.WebApp;
-
-        tg.ready();
-        tg.expand();
-
-        // Получаем пользователя Telegram
-        const user = tg.initDataUnsafe?.user;
-
-        if (user) {
-
-            document.getElementById("welcome").textContent =
-                "Привет, " + user.first_name + "! 👋";
-
-            document.getElementById("profileText").textContent =
-                user.first_name +
-                (user.last_name ? " " + user.last_name : "");
-
-        } else {
-
-            document.getElementById("profileText").textContent =
-                "Открой через Telegram";
-
+        if (tg) {
+            tg.ready();
+            tg.expand();
         }
 
-        // Профиль
-        function showProfile() {
+        const game = {
+            best: Number(localStorage.getItem('nexusOnlineBest') || 0),
+            score: 0,
+            combo: 1,
+            roundActive: false,
+            currentMode: null,
+            timer: null,
+            timeLeft: 15,
+            modeTimer: null,
+            chaosAnswer: null,
+            memorySequence: [],
+            memoryAnswer: null
+        };
 
-            if (user) {
+        const startScreen = document.getElementById('gameStartScreen');
+        const liveScreen = document.getElementById('gameLiveScreen');
+        const endScreen = document.getElementById('gameEndScreen');
+        const bestScoreView = document.getElementById('bestScoreView');
+        const roundName = document.getElementById('roundName');
+        const ruleBanner = document.getElementById('ruleBanner');
+        const eventBanner = document.getElementById('eventBanner');
+        const gamePrompt = document.getElementById('gamePrompt');
+        const gameActionZone = document.getElementById('gameActionZone');
+        const scoreValue = document.getElementById('scoreValue');
+        const comboValue = document.getElementById('comboValue');
+        const timerValue = document.getElementById('timerValue');
+        const timerRing = document.getElementById('timerRing');
+        const finalScore = document.getElementById('finalScore');
+        const finalCombo = document.getElementById('finalCombo');
+        const finalMode = document.getElementById('finalMode');
 
-                let name = user.first_name;
+        function toast(message) {
+            const el = document.getElementById('toast');
+            el.textContent = message;
+            el.style.display = 'block';
+            clearTimeout(window.toastTimer);
+            window.toastTimer = setTimeout(() => {
+                el.style.display = 'none';
+            }, 1800);
+        }
 
-                if (user.last_name) {
-                    name += " " + user.last_name;
-                }
+        function vibrate(pattern) {
+            if (tg && typeof tg.HapticFeedback?.impactOccurred === 'function') {
+                tg.HapticFeedback.impactOccurred('medium');
+                return;
+            }
 
-                toast("👤 Ты вошёл как " + name);
-
-            } else {
-
-                toast("⚠️ Открой Mini App через Telegram");
-
+            if ('vibrate' in navigator) {
+                navigator.vibrate(pattern);
             }
         }
 
-        // Всплывающее сообщение
-        function toast(x) {
-
-            let t = document.getElementById("toast");
-
-            t.textContent = x;
-            t.style.display = "block";
-
-            clearTimeout(window.toastTimer);
-
-            window.toastTimer = setTimeout(() => {
-                t.style.display = "none";
-            }, 2000);
-
+        function updateBestScoreView() {
+            bestScoreView.textContent = String(game.best);
         }
 
-    </script>
+        function showScreen(screen) {
+            startScreen.classList.toggle('active', screen === startScreen);
+            liveScreen.classList.toggle('active', screen === liveScreen);
+            endScreen.classList.toggle('active', screen === endScreen);
+        }
 
+        function randomFrom(values) {
+            return values[Math.floor(Math.random() * values.length)];
+        }
+
+        function shuffle(values) {
+            const arr = [...values];
+            for (let i = arr.length - 1; i > 0; i -= 1) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [arr[i], arr[j]] = [arr[j], arr[i]];
+            }
+            return arr;
+        }
+
+        function triggerRandomEvent() {
+            const events = [
+                '⚡ +2 сек',
+                '🌪 Перемешали сигнал',
+                '💥 +12 очков',
+                '✨ +1 combo',
+                '🌀 Следующий ответ проще'
+            ];
+
+            const event = randomFrom(events);
+            eventBanner.textContent = event;
+            eventBanner.classList.add('show');
+
+            if (event.includes('+2 сек')) {
+                game.timeLeft = Math.min(game.timeLeft + 2, 20);
+            }
+            if (event.includes('+12 очков')) {
+                game.score += 12;
+                updateHud();
+            }
+            if (event.includes('+1 combo')) {
+                game.combo += 1;
+                updateHud();
+            }
+            if (event.includes('Перемешали сигнал')) {
+                pickRandomMode();
+            }
+
+            setTimeout(() => {
+                eventBanner.classList.remove('show');
+            }, 1200);
+        }
+
+        function updateHud() {
+            scoreValue.textContent = String(game.score);
+            comboValue.textContent = 'x' + String(Math.max(1, game.combo));
+
+            const progress = (game.timeLeft / 15) * 100;
+            timerRing.style.setProperty('--time', String(progress));
+            timerValue.textContent = String(game.timeLeft);
+            timerRing.style.background = 'conic-gradient(var(--green) ' + progress + '%, rgba(255,255,255,0.06) 0)';
+
+            if (game.timeLeft <= 5) {
+                timerRing.style.background = 'conic-gradient(var(--gold) ' + progress + '%, rgba(255,255,255,0.06) 0)';
+            }
+            if (game.timeLeft <= 3) {
+                timerRing.style.background = 'conic-gradient(var(--red) ' + progress + '%, rgba(255,255,255,0.06) 0)';
+            }
+        }
+
+        function setRoundMode(modeName) {
+            game.currentMode = modeName;
+            roundName.textContent = 'mode: ' + modeName;
+            ruleBanner.textContent = 'Правило: ' + modeName;
+        }
+
+        function startRoundTimer() {
+            if (game.timer) clearInterval(game.timer);
+            game.timeLeft = 15;
+            updateHud();
+
+            game.timer = setInterval(() => {
+                if (!game.roundActive) return;
+                game.timeLeft -= 1;
+                updateHud();
+                if (game.timeLeft <= 0) finishRound();
+            }, 1000);
+        }
+
+        function handleCorrectAnswer() {
+            const gain = 8 + (game.combo - 1) * 6;
+            game.score += gain;
+            game.combo += 1;
+            updateHud();
+            vibrate([20, 30, 20]);
+            toast('✅ +' + gain + ' очков');
+            nextRound();
+        }
+
+        function handleWrongAnswer() {
+            game.combo = 1;
+            game.score = Math.max(0, game.score - 5);
+            updateHud();
+            vibrate(120);
+            toast('❌ -5');
+            nextRound();
+        }
+
+        function pickRandomMode() {
+            const modes = [
+                'Инверсия',
+                'Призрачные объекты',
+                'Память',
+                'Быстрый выбор',
+                'Смена сигнала'
+            ];
+
+            const nextMode = randomFrom(modes);
+            setRoundMode(nextMode);
+            renderMode(nextMode);
+        }
+
+        function renderDualButtons(correctSide, label, isFlipped) {
+            const container = document.createElement('div');
+            container.className = 'dual-actions' + (isFlipped ? ' flipped' : '');
+
+            const leftBtn = document.createElement('button');
+            leftBtn.className = 'action-button';
+            leftBtn.textContent = 'ЛЕВО';
+            leftBtn.addEventListener('click', () => {
+                if (correctSide === 'left') handleCorrectAnswer();
+                else handleWrongAnswer();
+            });
+
+            const rightBtn = document.createElement('button');
+            rightBtn.className = 'action-button';
+            rightBtn.textContent = 'ПРАВО';
+            rightBtn.addEventListener('click', () => {
+                if (correctSide === 'right') handleCorrectAnswer();
+                else handleWrongAnswer();
+            });
+
+            container.appendChild(leftBtn);
+            container.appendChild(rightBtn);
+            gameActionZone.appendChild(container);
+            gamePrompt.textContent = label;
+        }
+
+        function renderMode(mode) {
+            gameActionZone.innerHTML = '';
+
+            if (mode === 'Инверсия') {
+                const isFlipped = Math.random() > 0.5;
+                const correctSide = isFlipped ? 'right' : 'left';
+                const label = isFlipped ? 'Сигнал перевёрнут: нажми ПРАВО' : 'Нажми ЛЕВО';
+                renderDualButtons(correctSide, label, isFlipped);
+                return;
+            }
+
+            if (mode === 'Призрачные объекты') {
+                const objects = ['🔥', '✨', '💥', '🌙', '☄️', '💎'];
+                const correct = randomFrom(objects);
+                gamePrompt.textContent = 'Нажми настоящий объект: ' + correct;
+
+                const all = shuffle(objects.concat(['🪩', '🎭', '🧩'])).slice(0, 6);
+                const buttons = shuffle(all.map(item => ({ value: item, real: item === correct })));
+
+                buttons.forEach(item => {
+                    const btn = document.createElement('button');
+                    btn.className = 'phantom-button' + (item.real ? ' real' : '');
+                    btn.textContent = item.value;
+                    btn.addEventListener('click', () => {
+                        if (item.real) handleCorrectAnswer();
+                        else handleWrongAnswer();
+                    });
+                    gameActionZone.appendChild(btn);
+                });
+                return;
+            }
+
+            if (mode === 'Память') {
+                const symbols = ['🍉', '🔺', '🟣', '⭐', '💠'];
+                const sequence = shuffle(symbols).slice(0, 3);
+                const answer = sequence[1];
+                game.memorySequence = sequence;
+                game.memoryAnswer = answer;
+                gamePrompt.textContent = 'Запомни последовательность';
+
+                const wrap = document.createElement('div');
+                wrap.className = 'memory-sequence';
+                sequence.forEach(symbol => {
+                    const token = document.createElement('div');
+                    token.className = 'memory-token';
+                    token.textContent = symbol;
+                    wrap.appendChild(token);
+                });
+                gameActionZone.appendChild(wrap);
+
+                setTimeout(() => {
+                    gameActionZone.innerHTML = '';
+                    gamePrompt.textContent = 'Какой был второй символ?';
+                    const options = shuffle([...sequence, randomFrom(symbols), randomFrom(symbols)]).slice(0, 4);
+                    const unique = [...new Set(options)];
+
+                    unique.forEach(item => {
+                        const btn = document.createElement('button');
+                        btn.className = 'action-button';
+                        btn.textContent = item;
+                        btn.addEventListener('click', () => {
+                            if (item === answer) handleCorrectAnswer();
+                            else handleWrongAnswer();
+                        });
+                        gameActionZone.appendChild(btn);
+                    });
+                }, 1200);
+                return;
+            }
+
+            if (mode === 'Быстрый выбор') {
+                const choices = ['Синий', 'Круг', 'Левый', 'Да', 'Ось', 'Плюс', 'Рывок', 'Лайт'];
+                const answer = randomFrom(choices);
+                gamePrompt.textContent = 'Выбери: ' + answer;
+                const options = shuffle([answer, randomFrom(choices), randomFrom(choices), randomFrom(choices)]);
+
+                options.forEach(option => {
+                    const btn = document.createElement('button');
+                    btn.className = 'action-button';
+                    btn.textContent = option;
+                    btn.addEventListener('click', () => {
+                        if (option === answer) handleCorrectAnswer();
+                        else handleWrongAnswer();
+                    });
+                    gameActionZone.appendChild(btn);
+                });
+                return;
+            }
+
+            if (mode === 'Смена сигнала') {
+                const directions = ['ЛЕВО', 'ПРАВО', 'ВВЕРХ', 'ВНИЗ'];
+                const answer = randomFrom(directions);
+                game.chaosAnswer = answer;
+                gamePrompt.textContent = 'Следи за живым сигналом';
+                ruleBanner.textContent = 'Сигнал: безопасен выбор ' + answer;
+
+                directions.forEach(direction => {
+                    const btn = document.createElement('button');
+                    btn.className = 'action-button';
+                    btn.textContent = direction;
+                    btn.addEventListener('click', () => {
+                        if (direction === game.chaosAnswer) handleCorrectAnswer();
+                        else handleWrongAnswer();
+                    });
+                    gameActionZone.appendChild(btn);
+                });
+
+                game.modeTimer = setInterval(() => {
+                    if (!game.roundActive) return;
+                    const nextSignal = randomFrom(directions);
+                    game.chaosAnswer = nextSignal;
+                    ruleBanner.textContent = 'Сигнал: безопасен выбор ' + nextSignal;
+                    eventBanner.textContent = '⚡ смена сигнала: ' + nextSignal;
+                    eventBanner.classList.add('show');
+                    setTimeout(() => eventBanner.classList.remove('show'), 700);
+                }, 1200);
+            }
+        }
+
+        function nextRound() {
+            clearInterval(game.modeTimer);
+            game.modeTimer = null;
+            if (!game.roundActive) return;
+            triggerRandomEvent();
+            pickRandomMode();
+            startRoundTimer();
+        }
+
+        function finishRound() {
+            game.roundActive = false;
+            clearInterval(game.timer);
+            clearInterval(game.modeTimer);
+            game.modeTimer = null;
+
+            const maxScore = Number(localStorage.getItem('nexusOnlineBest') || 0);
+            if (game.score > maxScore) {
+                localStorage.setItem('nexusOnlineBest', String(game.score));
+                game.best = game.score;
+            }
+            updateBestScoreView();
+
+            finalScore.textContent = String(game.score);
+            finalCombo.textContent = 'x' + String(Math.max(1, game.combo));
+            finalMode.textContent = game.currentMode || 'signal';
+            showScreen(endScreen);
+            vibrate([15, 40, 15]);
+        }
+
+        function startGame() {
+            game.score = 0;
+            game.combo = 1;
+            game.roundActive = true;
+            gameActionZone.innerHTML = '';
+            clearInterval(game.timer);
+            clearInterval(game.modeTimer);
+            eventBanner.classList.remove('show');
+            showScreen(liveScreen);
+            updateHud();
+            pickRandomMode();
+            startRoundTimer();
+        }
+
+        function init() {
+            updateBestScoreView();
+            document.getElementById('startGameBtn').addEventListener('click', startGame);
+            document.getElementById('replayBtn').addEventListener('click', startGame);
+            document.getElementById('backHomeBtn').addEventListener('click', () => showScreen(startScreen));
+            showScreen(startScreen);
+        }
+
+        init();
+    </script>
 </body>
 
 </html>
