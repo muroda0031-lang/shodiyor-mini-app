@@ -2,15 +2,16 @@ import os
 import threading
 
 from flask import Flask
-from telegram import Update
+from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup, WebAppInfo
 from telegram.ext import Application, CommandHandler, ContextTypes
 
 
-# Токен берём из переменной Render
 TOKEN = os.environ["BOT_TOKEN"]
 
+# 🔗 СЮДА ВСТАВЬ АДРЕС СВОЕГО MINI APP
+MINI_APP_URL = "https://muroda0031-lang.github.io/shodiyor-mini-app/"
 
-# Небольшой веб-сервер для Render
+
 web_app = Flask(__name__)
 
 
@@ -29,12 +30,23 @@ def run_web_server():
     web_app.run(host="0.0.0.0", port=port)
 
 
-# Команда /start
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    keyboard = [
+        [
+            InlineKeyboardButton(
+                "🎮 Кто я",
+                web_app=WebAppInfo(url=MINI_APP_URL)
+            )
+        ]
+    ]
+
+    reply_markup = InlineKeyboardMarkup(keyboard)
+
     await update.message.reply_text(
         "Привет! 👋\n"
-        "Добро пожаловать в моего бота! 💜\n\n"
-        "Нажми кнопку «Кто я», чтобы начать! 🎮"
+        "Добро пожаловать в NEXUS ONLINE! 💜\n\n"
+        "Нажми кнопку «🎮 Кто я», чтобы начать игру!",
+        reply_markup=reply_markup
     )
 
 
@@ -47,7 +59,6 @@ def run_bot():
 
 
 if __name__ == "__main__":
-    # Запускаем веб-сервер и Telegram-бота одновременно
     web_thread = threading.Thread(
         target=run_web_server,
         daemon=True
